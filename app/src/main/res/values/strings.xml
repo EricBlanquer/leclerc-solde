@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Leclerc Solde</string>
+    <string name="import_pdf">Importer PDF</string>
+    <string name="check_selection">Vérifier</string>
+    <string name="delete_empty">Supprimer 0 €</string>
+    <string name="delete_selection">Supprimer sélection</string>
+    <string name="ready">Prêt. Importe des PDF puis appuie sur Vérifier.</string>
+</resources>
