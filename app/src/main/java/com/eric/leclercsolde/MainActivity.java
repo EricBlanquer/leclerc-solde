@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private final List<Card> queue = new ArrayList<>();
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable tickRunnable = this::tick;
 
     private CardAdapter adapter;
     private WebView web;
@@ -276,7 +277,12 @@ public class MainActivity extends AppCompatActivity {
         phase = Phase.PREP;
         captchaTriggered = false;
         banner.setText("Carte " + (queueIndex + 1) + "/" + queue.size() + " : préparation…");
-        handler.postDelayed(this::tick, POLL_MS);
+        scheduleTick();
+    }
+
+    private void scheduleTick() {
+        handler.removeCallbacks(tickRunnable);
+        handler.postDelayed(tickRunnable, POLL_MS);
     }
 
     private void tick() {
@@ -284,13 +290,16 @@ public class MainActivity extends AppCompatActivity {
             JSONObject status = decode(value);
             handleStatus(status);
             if (phase != Phase.IDLE) {
-                handler.postDelayed(this::tick, POLL_MS);
+                scheduleTick();
             }
         });
     }
 
     private void handleStatus(JSONObject status) {
         if (status == null) {
+            return;
+        }
+        if (queueIndex < 0 || queueIndex >= queue.size()) {
             return;
         }
         boolean hasForm = status.optBoolean("hasForm", false);
