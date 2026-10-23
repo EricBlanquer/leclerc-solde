@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.pdf.PdfRenderer;
@@ -14,6 +15,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -656,7 +658,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showPdf(Card card) {
-        int width = getResources().getDisplayMetrics().widthPixels * 2;
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int width = Math.max(metrics.widthPixels, metrics.heightPixels);
         executor.execute(() -> {
             try {
                 Uri uri = library.find(card.number);
@@ -664,7 +667,8 @@ public class MainActivity extends AppCompatActivity {
                     throw new FileNotFoundException(card.number);
                 }
                 Bitmap bitmap = renderFirstPage(uri, width);
-                handler.post(() -> showBarcodeDialog(bitmap));
+                int barcodeY = BarcodeLocator.centerY(bitmap);
+                handler.post(() -> showBarcodeDialog(bitmap, barcodeY));
             } catch (FileNotFoundException ex) {
                 handler.post(() -> toast(getString(R.string.pdf_missing)));
             } catch (IOException | RuntimeException ex) {
@@ -685,7 +689,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showBarcodeDialog(Bitmap bitmap) {
+    private void showBarcodeDialog(Bitmap bitmap, int barcodeY) {
         ImageView image = new ImageView(this);
         image.setImageBitmap(bitmap);
         image.setAdjustViewBounds(true);
@@ -694,6 +698,14 @@ public class MainActivity extends AppCompatActivity {
         scroll.setBackgroundColor(Color.WHITE);
         scroll.addView(image, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        if (barcodeY != BarcodeLocator.NOT_FOUND) {
+            scroll.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) {
+                    scroll.post(() -> scroll.scrollTo(0,
+                            (int) ((long) barcodeY * image.getHeight() / bitmap.getHeight()) - scroll.getHeight() / 2));
+                }
+            });
+        }
         Dialog dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         dialog.setContentView(scroll);
         View.OnClickListener dismiss = v -> dialog.dismiss();
@@ -705,6 +717,9 @@ public class MainActivity extends AppCompatActivity {
             params.screenBrightness = 1.0f;
             window.setAttributes(params);
         }
+        int previousOrientation = getRequestedOrientation();
+        dialog.setOnDismissListener(d -> setRequestedOrientation(previousOrientation));
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         dialog.show();
     }
 
