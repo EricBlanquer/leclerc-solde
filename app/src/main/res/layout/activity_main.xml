@@ -1,51 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <HorizontalScrollView
+    <LinearLayout
+        android:id="@+id/sectionHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none">
+        android:minHeight="48dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp">
+
+        <TextView
+            android:id="@+id/sectionCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/sectionToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnAccess"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="6dp"
+        android:text="@string/grant_access"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="6dp">
 
-            <Button
-                android:id="@+id/btnImport"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/import_pdf" />
-
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCheck"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:contentDescription="@string/check_selection"
+                android:tooltipText="@string/check_selection"
+                app:icon="@drawable/ic_check"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBuy"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="@string/check_selection" />
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:contentDescription="@string/buy_card"
+                android:tooltipText="@string/buy_card"
+                app:icon="@drawable/ic_buy"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeleteEmpty"
                 style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="@string/delete_empty" />
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:contentDescription="@string/delete_empty"
+                android:tooltipText="@string/delete_empty"
+                android:maxLines="1"
+                android:text="@string/zero_balance"
+                app:icon="@drawable/ic_delete_empty"
+                app:iconGravity="textStart"
+                app:iconPadding="4dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeleteSelection"
                 style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="@string/delete_selection" />
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:contentDescription="@string/delete_selection"
+                android:tooltipText="@string/delete_selection"
+                app:icon="@drawable/ic_delete_selection"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
         </LinearLayout>
-    </HorizontalScrollView>
+
+        <com.eric.leclercsolde.MaxHeightRecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#11000000" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/banner"
@@ -54,12 +123,6 @@
         android:padding="10dp"
         android:textStyle="bold"
         android:text="@string/ready" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#11000000" />
 
     <WebView
         android:id="@+id/web"

@@ -1,5 +1,6 @@
 package com.eric.leclercsolde;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,29 +52,33 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.Holder> {
         holder.check.setOnCheckedChangeListener(null);
         holder.check.setChecked(card.selected);
         holder.check.setOnCheckedChangeListener((button, checked) -> card.selected = checked);
-        holder.title.setText(titleText(card));
-        holder.subtitle.setText(subtitleText(card));
+        Context context = holder.itemView.getContext();
+        holder.title.setText(titleText(context, card));
+        holder.subtitle.setText(subtitleText(context, card));
         holder.itemView.setOnClickListener(v -> clickListener.onClick(card));
     }
 
-    private String titleText(Card card) {
+    private String titleText(Context context, Card card) {
         if (card.faceAmount != null) {
-            return card.formattedNumber() + "   ·   " + card.faceAmount + " €";
+            return context.getString(R.string.card_title_amount, card.formattedNumber(), card.faceAmount);
         }
         return card.formattedNumber();
     }
 
-    private String subtitleText(Card card) {
+    private String subtitleText(Context context, Card card) {
         switch (card.status) {
             case CHECKING:
-                return "Vérification…";
+                return context.getString(R.string.status_checking);
             case DONE:
-                String validity = card.balanceValidity != null ? "  (jusqu'au " + card.balanceValidity + ")" : "";
-                return "Solde : " + card.balance + " €" + validity;
+                if (card.balanceValidity != null) {
+                    return context.getString(R.string.status_done_until, card.balance, card.balanceValidity);
+                }
+                return context.getString(R.string.status_done, card.balance);
             case ERROR:
-                return "Erreur : " + (card.error != null ? card.error : "inconnue");
+                return context.getString(R.string.status_error,
+                        card.error != null ? card.error : context.getString(R.string.unknown_error));
             default:
-                return "En attente";
+                return context.getString(R.string.status_pending);
         }
     }
 
