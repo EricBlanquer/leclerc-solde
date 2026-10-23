@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String SITE_URL = "https://www.e-cartecadeau.leclerc/";
     private static final String SHOP_URL = "https://www.opteamcse.fr/shop/offre/eleclerc";
+    private static final String CHROME_PACKAGE = "com.android.chrome";
     private static final String USER_AGENT =
             "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) "
                     + "Chrome/126.0.0.0 Mobile Safari/537.36";
@@ -252,10 +253,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openShop() {
+        Intent shop = new Intent(Intent.ACTION_VIEW, Uri.parse(SHOP_URL));
         try {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SHOP_URL)));
-        } catch (ActivityNotFoundException ex) {
-            toast(getString(R.string.no_browser));
+            startActivity(new Intent(shop).setPackage(CHROME_PACKAGE));
+        } catch (ActivityNotFoundException chromeMissing) {
+            try {
+                startActivity(shop);
+            } catch (ActivityNotFoundException ex) {
+                toast(getString(R.string.no_browser));
+            }
         }
     }
 
