@@ -42,11 +42,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String STORE_FILE = "cards.json";
     private static final String PREFS_FILE = "ui";
     private static final String PREF_SECTION_COLLAPSED = "section_collapsed";
+    private static final String PREF_HIDDEN_NUMBERS = "hidden_numbers";
     private static final String PACKAGE_SCHEME = "package";
 
     private static final String STATUS_JS =
@@ -144,13 +147,13 @@ public class MainActivity extends AppCompatActivity {
         btnCheck = findViewById(R.id.btnCheck);
         btnAccess = findViewById(R.id.btnAccess);
         Button btnBuy = findViewById(R.id.btnBuy);
-        Button btnDeleteEmpty = findViewById(R.id.btnDeleteEmpty);
+        Button btnHideSelection = findViewById(R.id.btnHideSelection);
         Button btnDeleteSelection = findViewById(R.id.btnDeleteSelection);
 
         btnCheck.setOnClickListener(v -> startCheck());
         btnBuy.setOnClickListener(v -> openShop());
         btnAccess.setOnClickListener(v -> openAccessSettings());
-        btnDeleteEmpty.setOnClickListener(v -> confirmDeleteEmpty());
+        btnHideSelection.setOnClickListener(v -> confirmHideSelection());
         btnDeleteSelection.setOnClickListener(v -> confirmDeleteSelection());
     }
 
@@ -300,8 +303,9 @@ public class MainActivity extends AppCompatActivity {
         CharSequence previous = endScan();
         int start = cards.size();
         LocalDate today = LocalDate.now();
+        Set<String> hidden = hiddenNumbers();
         for (Card card : found) {
-            if (!card.isExpired(today) && !contains(card.number)) {
+            if (!card.isExpired(today) && !hidden.contains(card.number) && !contains(card.number)) {
                 cards.add(card);
             }
         }
@@ -531,21 +535,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void confirmDeleteEmpty() {
-        List<Card> empties = new ArrayList<>();
-        for (Card card : cards) {
-            if (card.status == Card.Status.DONE && card.isEmptyBalance()) {
-                empties.add(card);
-            }
-        }
-        if (empties.isEmpty()) {
-            toast(getString(R.string.no_empty_card));
-            return;
-        }
-        confirmDelete(R.string.delete_empty, R.plurals.confirm_delete_empty, empties);
+    private void confirmHideSelection() {
+        confirmSelection(R.string.hide_selection, R.plurals.confirm_hide_selection, R.string.hide, this::hideCards);
     }
 
     private void confirmDeleteSelection() {
+        confirmSelection(R.string.delete_selection, R.plurals.confirm_delete_selection, R.string.delete,
+                this::deleteCards);
+    }
+
+    private void confirmSelection(int titleId, int messageId, int actionId, Consumer<List<Card>> action) {
+        if (refuseWhileBusy()) {
+            return;
+        }
         List<Card> selected = new ArrayList<>();
         for (Card card : cards) {
             if (card.selected) {
@@ -556,19 +558,28 @@ public class MainActivity extends AppCompatActivity {
             toast(getString(R.string.no_selection));
             return;
         }
-        confirmDelete(R.string.delete_selection, R.plurals.confirm_delete_selection, selected);
+        new AlertDialog.Builder(this)
+                .setTitle(titleId)
+                .setMessage(plural(messageId, selected.size()))
+                .setPositiveButton(actionId, (d, w) -> action.accept(selected))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
-    private void confirmDelete(int titleId, int messageId, List<Card> targets) {
+    private Set<String> hiddenNumbers() {
+        return new HashSet<>(prefs().getStringSet(PREF_HIDDEN_NUMBERS, Collections.emptySet()));
+    }
+
+    private void hideCards(List<Card> targets) {
         if (refuseWhileBusy()) {
             return;
         }
-        new AlertDialog.Builder(this)
-                .setTitle(titleId)
-                .setMessage(plural(messageId, targets.size()))
-                .setPositiveButton(R.string.delete, (d, w) -> deleteCards(targets))
-                .setNegativeButton(R.string.cancel, null)
-                .show();
+        Set<String> numbers = numbers(targets);
+        Set<String> hidden = hiddenNumbers();
+        hidden.addAll(numbers);
+        prefs().edit().putStringSet(PREF_HIDDEN_NUMBERS, hidden).apply();
+        removeCards(numbers);
+        banner.setText(plural(R.plurals.cards_hidden, numbers.size()));
     }
 
     private boolean refuseWhileBusy() {
@@ -588,10 +599,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         deleting = true;
-        Set<String> numbers = new HashSet<>();
-        for (Card card : targets) {
-            numbers.add(card.number);
-        }
+        Set<String> numbers = numbers(targets);
         banner.setText(R.string.deleting);
         executor.execute(() -> {
             try {
@@ -603,16 +611,28 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void onCardsDeleted(int requested, Set<String> deleted) {
-        deleting = false;
+    private Set<String> numbers(List<Card> targets) {
+        Set<String> numbers = new HashSet<>();
+        for (Card card : targets) {
+            numbers.add(card.number);
+        }
+        return numbers;
+    }
+
+    private void removeCards(Set<String> numbers) {
         for (int i = cards.size() - 1; i >= 0; i--) {
-            if (deleted.contains(cards.get(i).number)) {
+            if (numbers.contains(cards.get(i).number)) {
                 cards.remove(i);
                 adapter.notifyItemRemoved(i);
             }
         }
         updateSectionHeader();
         persist();
+    }
+
+    private void onCardsDeleted(int requested, Set<String> deleted) {
+        deleting = false;
+        removeCards(deleted);
         int kept = requested - deleted.size();
         if (kept == 0) {
             banner.setText(plural(R.plurals.cards_deleted, deleted.size()));

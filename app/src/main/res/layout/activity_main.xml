@@ -79,20 +79,18 @@
                 app:iconPadding="0dp" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDeleteEmpty"
+                android:id="@+id/btnHideSelection"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
                 android:layout_weight="1"
                 android:paddingHorizontal="8dp"
-                android:contentDescription="@string/delete_empty"
-                android:tooltipText="@string/delete_empty"
-                android:maxLines="1"
-                android:text="@string/zero_balance"
-                app:icon="@drawable/ic_delete_empty"
+                android:contentDescription="@string/hide_selection"
+                android:tooltipText="@string/hide_selection"
+                app:icon="@drawable/ic_hide_selection"
                 app:iconGravity="textStart"
-                app:iconPadding="4dp" />
+                app:iconPadding="0dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeleteSelection"

@@ -3,8 +3,7 @@
     <string name="app_name">Leclerc Solde</string>
     <string name="check_selection">Vérifier les cartes sélectionnées</string>
     <string name="buy_card">Acheter une carte</string>
-    <string name="delete_empty">Supprimer les cartes à 0 €</string>
-    <string name="zero_balance">0 €</string>
+    <string name="hide_selection">Retirer la sélection de la liste</string>
     <string name="delete_selection">Supprimer la sélection</string>
     <string name="grant_access">Autoriser l\'accès aux fichiers pour détecter les PDF</string>
     <string name="ready">Prêt. Les PDF de cartes cadeaux du téléphone sont détectés automatiquement.</string>
@@ -18,11 +17,11 @@
     <string name="delete_running">Suppression déjà en cours.</string>
     <string name="page_not_ready">Page pas encore chargée, réessaie dans un instant.</string>
     <string name="no_selection">Aucune carte sélectionnée.</string>
-    <string name="no_empty_card">Aucune carte vérifiée à 0 €.</string>
     <string name="card_step_prep">Carte %1$d/%2$d : préparation…</string>
     <string name="card_step_captcha">Carte %1$d/%2$d : résous le captcha dans la page.</string>
     <string name="card_step_checking">Carte %1$d/%2$d : vérification…</string>
     <string name="card_step_invalid_captcha">Carte %1$d/%2$d : captcha invalide, recommence le captcha.</string>
+    <string name="hide">Retirer</string>
     <string name="delete">Supprimer</string>
     <string name="cancel">Annuler</string>
     <string name="deleting">Suppression des cartes et de leurs PDF…</string>
@@ -55,13 +54,17 @@
         <item quantity="one">Terminé. %d carte vérifiée.</item>
         <item quantity="other">Terminé. %d cartes vérifiées.</item>
     </plurals>
-    <plurals name="confirm_delete_empty">
-        <item quantity="one">Supprimer %d carte à 0 € ? Ses PDF seront aussi supprimés du téléphone.</item>
-        <item quantity="other">Supprimer %d cartes à 0 € ? Leurs PDF seront aussi supprimés du téléphone.</item>
+    <plurals name="confirm_hide_selection">
+        <item quantity="one">Retirer %d carte sélectionnée de la liste ? Ses PDF restent sur le téléphone et elle ne sera plus détectée.</item>
+        <item quantity="other">Retirer %d cartes sélectionnées de la liste ? Leurs PDF restent sur le téléphone et elles ne seront plus détectées.</item>
     </plurals>
     <plurals name="confirm_delete_selection">
         <item quantity="one">Supprimer %d carte sélectionnée ? Ses PDF seront aussi supprimés du téléphone.</item>
         <item quantity="other">Supprimer %d cartes sélectionnées ? Leurs PDF seront aussi supprimés du téléphone.</item>
+    </plurals>
+    <plurals name="cards_hidden">
+        <item quantity="one">%d carte retirée de la liste.</item>
+        <item quantity="other">%d cartes retirées de la liste.</item>
     </plurals>
     <plurals name="cards_deleted">
         <item quantity="one">%d carte supprimée avec ses PDF.</item>
