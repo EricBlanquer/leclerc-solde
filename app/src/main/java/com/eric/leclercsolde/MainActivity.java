@@ -16,11 +16,13 @@ import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.webkit.WebSettings;
@@ -34,6 +36,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.button.MaterialButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -708,11 +712,23 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+        MaterialButton back = new MaterialButton(this);
+        back.setText(R.string.back);
+        back.setIconResource(R.drawable.ic_arrow_back);
+        FrameLayout.LayoutParams backParams = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.START);
+        int margin = getResources().getDimensionPixelSize(R.dimen.back_button_margin);
+        backParams.setMargins(margin, margin, margin, margin);
+        FrameLayout root = new FrameLayout(this);
+        root.addView(scroll, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        root.addView(back, backParams);
         Dialog dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        dialog.setContentView(scroll);
+        dialog.setContentView(root);
         View.OnClickListener dismiss = v -> dialog.dismiss();
         scroll.setOnClickListener(dismiss);
         image.setOnClickListener(dismiss);
+        back.setOnClickListener(dismiss);
         Window window = dialog.getWindow();
         if (window != null) {
             WindowManager.LayoutParams params = window.getAttributes();
