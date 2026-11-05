@@ -42,6 +42,7 @@ import org.json.JSONTokener;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -389,6 +390,7 @@ public class MainActivity extends AppCompatActivity {
         if (queueIndex >= queue.size()) {
             phase = Phase.IDLE;
             btnCheck.setEnabled(true);
+            setSectionCollapsed(false);
             banner.setText(plural(R.plurals.cards_checked, queue.size()));
             return;
         }
@@ -668,7 +670,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 Bitmap bitmap = renderFirstPage(uri, width);
                 int barcodeY = BarcodeLocator.centerY(bitmap);
-                handler.post(() -> showBarcodeDialog(bitmap, barcodeY));
+                handler.post(() -> showBarcodeDialog(card, bitmap, barcodeY));
             } catch (FileNotFoundException ex) {
                 handler.post(() -> toast(getString(R.string.pdf_missing)));
             } catch (IOException | RuntimeException ex) {
@@ -689,7 +691,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showBarcodeDialog(Bitmap bitmap, int barcodeY) {
+    private void showBarcodeDialog(Card card, Bitmap bitmap, int barcodeY) {
         ImageView image = new ImageView(this);
         image.setImageBitmap(bitmap);
         image.setAdjustViewBounds(true);
@@ -718,9 +720,22 @@ public class MainActivity extends AppCompatActivity {
             window.setAttributes(params);
         }
         int previousOrientation = getRequestedOrientation();
-        dialog.setOnDismissListener(d -> setRequestedOrientation(previousOrientation));
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        dialog.setOnDismissListener(d -> {
+            setRequestedOrientation(previousOrientation);
+            new BalanceDialog(this, card, this::updateBalance).show();
+        });
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
         dialog.show();
+    }
+
+    private void updateBalance(Card card, BigDecimal balance) {
+        card.balance = Card.formatAmount(balance);
+        card.status = Card.Status.DONE;
+        card.error = null;
+        card.selected = card.isEmptyBalance();
+        refresh(card);
+        persist();
+        report(getString(R.string.balance_updated, card.formattedNumber(), card.balance));
     }
 
     private void report(CharSequence text) {

@@ -37,6 +37,20 @@
     <string name="unknown_error">inconnue</string>
     <string name="two_sentences">%1$s %2$s</string>
     <string name="card_title_amount">"%1$s   ·   %2$s €"</string>
+    <string name="euro">€</string>
+    <string name="update_balance">Mettre à jour le solde</string>
+    <string name="current_balance">Solde actuel : %1$s €</string>
+    <string name="initial_amount">Montant initial : %1$s €</string>
+    <string name="amount_spent">Montant dépensé</string>
+    <string name="remaining_balance">Solde restant</string>
+    <string name="mode_spent">Dépensé</string>
+    <string name="mode_remaining">Restant</string>
+    <string name="new_balance">Nouveau solde : %1$s €</string>
+    <string name="enter_amount">Saisis un montant.</string>
+    <string name="invalid_amount">Montant invalide.</string>
+    <string name="amount_exceeds_balance">Dépasse le solde de %1$s €.</string>
+    <string name="save">Enregistrer</string>
+    <string name="balance_updated">Carte %1$s : solde mis à jour à %2$s €.</string>
 
     <plurals name="cards_count">
         <item quantity="one">%d carte</item>

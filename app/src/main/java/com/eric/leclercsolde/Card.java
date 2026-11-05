@@ -3,6 +3,8 @@ package com.eric.leclercsolde;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -11,6 +13,8 @@ import java.util.Comparator;
 public class Card {
 
     public enum Status { PENDING, CHECKING, DONE, ERROR }
+
+    public static final int AMOUNT_DECIMALS = 2;
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/uuuu");
 
@@ -105,14 +109,23 @@ public class Card {
     }
 
     public boolean isEmptyBalance() {
-        if (balance == null) {
-            return false;
+        BigDecimal amount = parseAmount(balance);
+        return amount != null && amount.signum() == 0;
+    }
+
+    public static BigDecimal parseAmount(String text) {
+        if (text == null) {
+            return null;
         }
-        String normalized = balance.replace(",", ".").replaceAll("[^0-9.]", "");
+        String normalized = text.replace(',', '.').replaceAll("[^0-9.]", "");
         try {
-            return Double.parseDouble(normalized) == 0d;
+            return new BigDecimal(normalized);
         } catch (NumberFormatException ex) {
-            return false;
+            return null;
         }
+    }
+
+    public static String formatAmount(BigDecimal amount) {
+        return amount.setScale(AMOUNT_DECIMALS, RoundingMode.HALF_UP).toPlainString().replace('.', ',');
     }
 }
